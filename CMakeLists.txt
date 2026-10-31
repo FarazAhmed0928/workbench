@@ -19,6 +19,7 @@ add_library(wb_core STATIC
   src/core/benchmark.cpp
   src/core/backprop.cpp
   src/core/svgplot.cpp
+  src/core/devices.cpp
 )
 target_include_directories(wb_core PUBLIC src/core)
 if(MSVC)
@@ -63,3 +64,7 @@ target_link_libraries(gen_results PRIVATE wb_core)
 add_executable(test_backprop tests/test_backprop.cpp)
 target_link_libraries(test_backprop PRIVATE wb_core)
 add_test(NAME backprop COMMAND test_backprop)
+
+add_executable(test_devices tests/test_devices.cpp)
+target_link_libraries(test_devices PRIVATE wb_core)
+add_test(NAME devices COMMAND test_devices)
