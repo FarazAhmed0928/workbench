@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 project(UnifiedWorkbench VERSION 0.1.0 LANGUAGES CXX)
 
+# Static CRT on MSVC so Launch.exe needs no Visual C++ redistributable installed.
+if(MSVC)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -68,3 +73,22 @@ add_test(NAME backprop COMMAND test_backprop)
 add_executable(test_devices tests/test_devices.cpp)
 target_link_libraries(test_devices PRIVATE wb_core)
 add_test(NAME devices COMMAND test_devices)
+
+# ---- Launch (server + launcher in one executable) ----
+add_executable(Launch src/server/main.cpp src/server/api.cpp)
+target_include_directories(Launch PRIVATE third_party src/server)
+target_link_libraries(Launch PRIVATE wb_core)
+if(WIN32)
+  target_compile_definitions(Launch PRIVATE _WIN32_WINNT=0x0A00 WIN32_LEAN_AND_MEAN NOMINMAX)
+  target_link_libraries(Launch PRIVATE ws2_32 shell32 user32)
+  set_target_properties(Launch PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
+# Console variant for debugging on any platform (prints READY <url>).
+add_executable(LaunchConsole src/server/main.cpp src/server/api.cpp)
+target_include_directories(LaunchConsole PRIVATE third_party src/server)
+target_link_libraries(LaunchConsole PRIVATE wb_core)
+target_compile_definitions(LaunchConsole PRIVATE WB_CONSOLE=1)
+if(WIN32)
+  target_compile_definitions(LaunchConsole PRIVATE _WIN32_WINNT=0x0A00 WIN32_LEAN_AND_MEAN NOMINMAX)
+  target_link_libraries(LaunchConsole PRIVATE ws2_32 shell32 user32)
+endif()

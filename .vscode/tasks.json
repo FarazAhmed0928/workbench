@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Workbench (packaged Launch.exe)",
+      "type": "shell",
+      "command": "${workspaceFolder}/Launch.exe",
+      "windows": { "command": "${workspaceFolder}\\Launch.exe" },
+      "problemMatcher": [],
+      "presentation": { "reveal": "never", "close": true },
+      "group": { "kind": "test", "isDefault": true }
+    },
+    {
+      "label": "Build from source (CMake, Release)",
+      "type": "shell",
+      "command": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release --parallel",
+      "problemMatcher": ["$gcc", "$msCompile"],
+      "group": "build"
+    },
+    {
+      "label": "Run unit tests",
+      "type": "shell",
+      "command": "ctest --test-dir build -C Release --output-on-failure",
+      "problemMatcher": [],
+      "group": "test"
+    }
+  ]
+}

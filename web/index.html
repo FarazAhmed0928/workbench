@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unified Engineering Workbench</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 rx=%273%27 fill=%27%231f5fbf%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+<script src="vendor/chart.umd.js"></script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<header>
+  <h1>Unified Engineering Workbench</h1>
+  <nav id="tabs" role="tablist">
+    <button data-view="geometry" class="active" role="tab">Geometry</button>
+    <button data-view="thermal" role="tab">Thermal Analysis</button>
+    <button data-view="performance" role="tab">Performance</button>
+    <button data-view="hardware" role="tab">Hardware</button>
+    <button data-view="learning" role="tab">Backprop (Task F)</button>
+  </nav>
+  <button id="quit" class="ghost" title="Stop the local server and close the workbench">Quit</button>
+</header>
+
+<div id="banner" class="banner" hidden role="alert"></div>
+
+<main>
+<!-- ================= GEOMETRY ================= -->
+<section id="view-geometry" class="view">
+  <div class="subtabs">
+    <button data-sub="stl" class="active">STL geometry</button>
+    <button data-sub="csv">Nodal temperatures (CSV)</button>
+  </div>
+
+  <div id="sub-stl" class="sub">
+    <div class="toolbar">
+      <label class="filebtn">Choose ASCII STL…<input type="file" id="stlFile" accept=".stl,.txt"></label>
+      <button id="stlExample">Load example (synthetic rod)</button>
+      <button id="stlFit">Fit to view</button>
+      <label><input type="checkbox" id="stlWire"> Wireframe</label>
+      <span id="stlInfo" class="muted">No geometry loaded.</span>
+    </div>
+    <div class="viewer" id="stlViewer"></div>
+    <p class="hint">Drag to rotate · right-drag or Shift+drag to pan · wheel to zoom. STL has no unit field: coordinates are shown in model units (the example uses metres).</p>
+  </div>
+
+  <div id="sub-csv" class="sub" hidden>
+    <div class="toolbar">
+      <label class="filebtn">Choose nodal CSV…<input type="file" id="csvFile" accept=".csv,.txt"></label>
+      <button id="csvExample">Load example (SYNTHETIC)</button>
+      <button id="csvFit">Fit to view</button>
+      <button id="csvPng">Export view (PNG)</button>
+      <span id="csvInfo" class="muted">No results loaded.</span>
+    </div>
+    <div class="viewer" id="csvViewer">
+      <div id="legend" class="legend" hidden>
+        <div class="legend-title">Temperature [°C]</div>
+        <div class="legend-body"><canvas id="legendCanvas" width="18" height="200"></canvas>
+          <div class="legend-ticks"><span id="legMax"></span><span id="legMid"></span><span id="legMin"></span></div></div>
+      </div>
+      <div id="inspect" class="inspect" hidden></div>
+    </div>
+    <p class="hint">Click a node to inspect it. Expected columns: <code>node_id,x_m,y_m,z_m,temperature_C</code> (metres, °C). The bundled example is <b>synthetic</b>, not an ANSYS export.</p>
+  </div>
+</section>
+
+<!-- ================= THERMAL ================= -->
+<section id="view-thermal" class="view" hidden>
+  <div class="grid2">
+    <form id="feaForm" class="card" novalidate>
+      <h2>1D steady-state rod (linear FE)</h2>
+      <p class="muted">Solves −d/dx(kA dT/dx) = qA with T(0)=T₀ and T(L)=T<sub>L</sub>. Lateral surfaces insulated, constant properties.</p>
+      <div class="fields">
+        <label>L [m]<input name="L" type="number" step="any" value="1"></label>
+        <label>A [m²]<input name="A" type="number" step="any" value="0.0001"></label>
+        <label>k [W/(m·K)]<input name="k" type="number" step="any" value="10"></label>
+        <label>q [W/m³]<input name="q" type="number" step="any" value="10000"></label>
+        <label>T(0) [°C]<input name="T0" type="number" step="any" value="100"></label>
+        <label>T(L) [°C]<input name="TL" type="number" step="any" value="20"></label>
+        <label>Elements N<input name="N" type="number" step="1" value="10"></label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="primary">Solve</button>
+        <button type="button" id="feaConv">Run convergence study (N = 10, 20, 40, 80)</button>
+      </div>
+      <div class="actions">
+        <button type="button" id="feaCsv">Export solution CSV</button>
+        <button type="button" id="feaConvCsv">Export convergence CSV</button>
+        <button type="button" id="feaPng">Export plot (PNG)</button>
+      </div>
+      <div id="feaStats" class="stats"></div>
+    </form>
+    <div class="card">
+      <div class="chartbox"><canvas id="feaChart"></canvas></div>
+    </div>
+  </div>
+  <div class="grid2" id="convBox" hidden>
+    <div class="card">
+      <h2>Mesh convergence</h2>
+      <table id="convTable"><thead><tr><th>N</th><th>h [m]</th><th>Max nodal error [°C]</th><th>Max midpoint error [°C]</th><th>Observed order</th></tr></thead><tbody></tbody></table>
+      <p class="muted">Midpoint error uses the FE interpolation (average of the two nodal values) against T<sub>exact</sub>(x) = T₀ + (T<sub>L</sub>−T₀)x/L + q/(2k)·x(L−x). Nodal errors are at round-off level because the exact solution is quadratic; the midpoint error shrinks as h².</p>
+    </div>
+    <div class="card"><div class="chartbox"><canvas id="convChart"></canvas></div></div>
+  </div>
+  <div class="card notes">
+    <h2>Assumptions</h2>
+    <ul>
+      <li>Units: m, m², W/(m·K), W/m³, °C. Constant k and A; no heat loss through the lateral surface.</li>
+      <li>Two-node elements: element stiffness (kA/h)[[1,−1],[−1,1]] and consistent load qAh/2 per node.</li>
+      <li>Dirichlet temperatures are imposed by moving the known nodal values to the right-hand side of the neighbouring rows and replacing the constrained rows by identity rows.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= PERFORMANCE ================= -->
+<section id="view-performance" class="view" hidden>
+  <div class="grid2">
+    <form id="perfForm" class="card" novalidate>
+      <h2>Serial vs CPU-parallel batch of thermal solves</h2>
+      <div class="fields">
+        <label>Cases<input name="cases" type="number" step="1" value="20000"></label>
+        <label>Elements per case<input name="elements" type="number" step="1" value="2000"></label>
+        <label>Seed<input name="seed" type="number" step="1" value="12345"></label>
+        <label>Max workers (capped at logical CPUs)<input name="maxWorkers" type="number" step="1" value="4"></label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="primary" id="perfStart">Run benchmark</button>
+        <button type="button" id="perfCancel" disabled>Cancel</button>
+        <button type="button" id="perfCsv" disabled>Export CSV</button>
+      </div>
+      <progress id="perfProgress" max="1" value="0" hidden></progress>
+      <div id="perfLabel" class="muted"></div>
+      <p class="muted">Protocol: 1 warm-up and 5 measured repetitions per worker count; the median is reported. Only the solve step is timed. Cancelling discards the partial run, so no half-finished numbers are shown.</p>
+    </form>
+    <div class="card"><div class="chartbox"><canvas id="perfChart"></canvas></div></div>
+  </div>
+  <div class="card" id="perfResult" hidden>
+    <h2>Results</h2>
+    <div id="perfSys" class="muted"></div>
+    <table id="perfTable"><thead><tr><th>Workers</th><th>Median [s]</th><th>Speedup T₁/T<sub>p</sub></th><th>Efficiency</th><th>Max |ΔT| vs serial [°C]</th></tr></thead><tbody></tbody></table>
+    <div id="perfVerdict"></div>
+  </div>
+</section>
+
+<!-- ================= HARDWARE ================= -->
+<section id="view-hardware" class="view" hidden>
+  <div class="banner sim">SIMULATED — no real hardware is connected. These are C++ mock adapters that demonstrate discovery, connection, telemetry and error recovery.</div>
+  <div class="toolbar"><button id="devDiscover" class="primary">Discover devices</button></div>
+  <div id="devCards" class="cards"></div>
+  <div class="card">
+    <h2>Event log</h2>
+    <pre id="devLog" class="log"></pre>
+  </div>
+  <div class="card notes">
+    <h2>Design reference</h2>
+    <p>The block diagram, interface/voltage table and integration plan are in <code>docs/embedded_design.md</code>. A JTAG adapter is a <b>debug interface</b> (TCK/TMS/TDI/TDO plus a target voltage reference), not an interchangeable compute board.</p>
+  </div>
+</section>
+
+<!-- ================= BACKPROP ================= -->
+<section id="view-learning" class="view" hidden>
+  <div class="grid2">
+    <div class="card">
+      <h2>One-sample backpropagation (no autodiff)</h2>
+      <p class="muted">h = tanh(wx+b), ŷ = vh+c, J = ½(ŷ−y)², x=1, y=2, w=0.5, b=0, v=1, c=0, lr=0.1.</p>
+      <table id="bpTable"><thead><tr><th>Quantity</th><th>Value</th></tr></thead><tbody></tbody></table>
+      <div id="bpCheck"></div>
+      <div class="actions"><button id="bpCsv">Export loss CSV</button></div>
+    </div>
+    <div class="card"><div class="chartbox"><canvas id="bpChart"></canvas></div></div>
+  </div>
+</section>
+</main>
+
+<footer><span id="foot" class="muted">Local only · 127.0.0.1</span></footer>
+</body>
+</html>

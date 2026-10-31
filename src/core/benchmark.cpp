@@ -59,11 +59,12 @@ BenchReport runBenchmark(const BatchConfig& cfg, int maxWorkers, int warmups, in
         std::unique_ptr<ThreadPool> pool;
         if (p > 1) pool.reset(new ThreadPool(static_cast<std::size_t>(p)));  // created outside the timed region
 
-        auto once = [&]() { return p == 1 ? solveSerial(cases, N) : solveParallel(cases, N, *pool); };
+        auto once = [&]() { return p == 1 ? solveSerial(cases, N, ctl) : solveParallel(cases, N, *pool, ctl); };
 
         for (int w = 0; w < warmups; ++w) {
             if (ctl && ctl->cancel.load()) { rep.cancelled = true; return rep; }
             once();
+            if (ctl && ctl->cancel.load()) { rep.cancelled = true; return rep; }
             tick(label + " warm-up");
         }
         BatchResult last;
@@ -72,6 +73,7 @@ BenchReport runBenchmark(const BatchConfig& cfg, int maxWorkers, int warmups, in
             const auto t0 = Clock::now();
             last = once();
             const auto t1 = Clock::now();
+            if (ctl && ctl->cancel.load()) { rep.cancelled = true; return rep; }  // partial run: discard
             row.runsSeconds.push_back(std::chrono::duration<double>(t1 - t0).count());
             tick(label + " run " + std::to_string(i + 1));
         }
