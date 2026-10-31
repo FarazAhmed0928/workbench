@@ -13,6 +13,10 @@ add_library(wb_core STATIC
   src/core/fea1d.cpp
   src/core/stl.cpp
   src/core/nodal_csv.cpp
+  src/core/thread_pool.cpp
+  src/core/batch.cpp
+  src/core/sysinfo.cpp
+  src/core/benchmark.cpp
 )
 target_include_directories(wb_core PUBLIC src/core)
 if(MSVC)
@@ -32,3 +36,21 @@ target_link_libraries(gen_examples PRIVATE wb_core)
 add_executable(test_parsers tests/test_parsers.cpp)
 target_link_libraries(test_parsers PRIVATE wb_core)
 add_test(NAME parsers COMMAND test_parsers WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+find_package(Threads REQUIRED)
+target_link_libraries(wb_core PUBLIC Threads::Threads)
+if(WIN32)
+  target_link_libraries(wb_core PUBLIC advapi32)
+endif()
+# Record the optimisation flags actually used, for the benchmark report.
+string(TOUPPER "${CMAKE_BUILD_TYPE}" WB_BT)
+set(WB_FLAGS_STR "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${WB_BT}}")
+string(STRIP "${WB_FLAGS_STR}" WB_FLAGS_STR)
+set_source_files_properties(src/core/sysinfo.cpp PROPERTIES COMPILE_DEFINITIONS "WB_BUILD_FLAGS=\"${WB_FLAGS_STR}\"")
+
+add_executable(bench tools/bench.cpp)
+target_link_libraries(bench PRIVATE wb_core)
+
+add_executable(test_batch tests/test_batch.cpp)
+target_link_libraries(test_batch PRIVATE wb_core)
+add_test(NAME batch COMMAND test_batch)
