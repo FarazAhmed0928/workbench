@@ -1,0 +1,9 @@
+build/
+out/
+*.o
+*.obj
+*.exe
+!dist/Launch.exe
+.vscode/ipch/
+.DS_Store
+*.log
