@@ -17,6 +17,8 @@ add_library(wb_core STATIC
   src/core/batch.cpp
   src/core/sysinfo.cpp
   src/core/benchmark.cpp
+  src/core/backprop.cpp
+  src/core/svgplot.cpp
 )
 target_include_directories(wb_core PUBLIC src/core)
 if(MSVC)
@@ -54,3 +56,10 @@ target_link_libraries(bench PRIVATE wb_core)
 add_executable(test_batch tests/test_batch.cpp)
 target_link_libraries(test_batch PRIVATE wb_core)
 add_test(NAME batch COMMAND test_batch)
+
+add_executable(gen_results tools/gen_results.cpp)
+target_link_libraries(gen_results PRIVATE wb_core)
+
+add_executable(test_backprop tests/test_backprop.cpp)
+target_link_libraries(test_backprop PRIVATE wb_core)
+add_test(NAME backprop COMMAND test_backprop)

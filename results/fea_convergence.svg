@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="460" viewBox="0 0 760 460" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<text x="380" y="22" text-anchor="middle" font-size="15" font-weight="bold">Mesh convergence: max midpoint error (FE interpolation)</text>
+<line x1="80" x2="740" y1="400" y2="400" stroke="#ddd"/>
+<text x="74" y="404" text-anchor="end">0.01</text>
+<line x1="80" x2="740" y1="280" y2="280" stroke="#ddd"/>
+<text x="74" y="284" text-anchor="end">0.1</text>
+<line x1="80" x2="740" y1="160" y2="160" stroke="#ddd"/>
+<text x="74" y="164" text-anchor="end">1</text>
+<line x1="80" x2="740" y1="40" y2="40" stroke="#ddd"/>
+<text x="74" y="44" text-anchor="end">10</text>
+<line x1="80" x2="80" y1="40" y2="400" stroke="#eee"/>
+<text x="80" y="416" text-anchor="middle">0.01</text>
+<line x1="740" x2="740" y1="40" y2="400" stroke="#eee"/>
+<text x="740" y="416" text-anchor="middle">0.1</text>
+<rect x="80" y="40" width="660" height="360" fill="none" stroke="#333"/>
+<text x="410" y="446" text-anchor="middle">Element size h [m]</text>
+<text transform="translate(18,220) rotate(-90)" text-anchor="middle">Max |T_FE - T_exact| at midpoints [degC]</text>
+<polyline fill="none" stroke="#1f77b4" stroke-width="2" points="740.00,148.37 541.32,220.62 342.64,292.87 143.96,365.11 "/>
+<circle cx="740" cy="148.371" r="3.5" fill="#1f77b4"/>
+<circle cx="541.32" cy="220.618" r="3.5" fill="#1f77b4"/>
+<circle cx="342.64" cy="292.865" r="3.5" fill="#1f77b4"/>
+<circle cx="143.961" cy="365.112" r="3.5" fill="#1f77b4"/>
+<line x1="590" x2="614" y1="52" y2="52" stroke="#1f77b4" stroke-width="2"/><text x="620" y="56">midpoint error (slope 2)</text>
+</svg>

@@ -1,0 +1,25 @@
+Inputs: x=1 y=2  w=0.5 b=0 v=1 c=0  lr=0.1
+
+Forward pass
+  z      = w*x + b        = 0.5
+  h      = tanh(z)        = 0.4621171573
+  y_hat  = v*h + c        = 0.4621171573
+  J      = 0.5*(y_hat-y)^2 = 1.182541819
+
+Chain rule
+  dJ/dy_hat = y_hat - y   = -1.537882843
+  dJ/dv  = e*h            = -0.7106820475
+  dJ/dc  = e              = -1.537882843
+  dJ/dh  = e*v            = -1.537882843
+  dh/dz  = 1 - h^2        = 0.786447733
+  dJ/dz  = dJ/dh*dh/dz    = -1.209464475
+  dJ/dw  = dJ/dz * x      = -1.209464475
+  dJ/db  = dJ/dz          = -1.209464475
+
+Central differences (eps=1e-6)
+  dw=-1.209464475 db=-1.209464475 dv=-0.7106820474 dc=-1.537882843
+  max abs error = 1.1175482761e-10
+
+Update (simultaneous, old gradients)
+  w1=0.6209464475 b1=0.1209464475 v1=1.0710682047 c1=0.1537882843
+  J after update = 0.6857737650
