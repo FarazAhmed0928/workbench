@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   windows:
     runs-on: windows-latest
@@ -67,3 +70,13 @@ jobs:
         with:
           name: Workbench-win-x64
           path: dist/Workbench
+
+      - name: Publish test build as a pre-release (plain download link, no login needed)
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Compress-Archive -Path dist\Workbench -DestinationPath Workbench-win-x64.zip -Force
+          gh release delete latest-build --yes --cleanup-tag 2>$null
+          gh release create latest-build Workbench-win-x64.zip --prerelease --title "Latest Windows build (test)" --notes "Automatic CI build for launch testing. Not the final submission."
