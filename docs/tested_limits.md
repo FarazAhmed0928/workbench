@@ -13,4 +13,11 @@ Measured with `Launch` server parsing and JSON building, on the build sandbox (2
 
 Configured limits: 50 MB per upload, 500,000 triangles, 1,000,000 CSV rows, benchmark workload <= 4e8 element-solves, 1,000,000 FE elements. Binary STL is rejected with an explanatory message.
 
-Not yet measured: browser frame rate and memory on the largest accepted files.
+Through the real browser UI (headless Chrome with software WebGL on the same sandbox, file picker to first render, no GPU):
+
+| Input | Time to first render |
+|---|---|
+| ASCII STL, 190,000 triangles (45 MB) | 3.6 s |
+| Nodal CSV, 1,000,000 rows (40 MB) | 3.5 s |
+
+No page errors occurred. Not measured: frame rate while rotating, browser memory use, and timings on Windows or a GPU.

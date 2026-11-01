@@ -30,7 +30,7 @@ e. **First Windows CI run failed** because the packaging step wrote into `docs/`
 
 f. **First block diagram had overlapping connector lines and text overflowing its boxes.** I looked at the rendered image (not just the SVG source), saw the problems, and the diagram was redrawn.
 
-g. **Large-upload test returned HTTP 413 for every file** when sent with curl's default content type. With `Content-Type: text/plain` (what the browser's `fetch` with a string body sends) the same files were accepted. The cause was not investigated in the library source; I treat it as unverified. TODO: re-test a large file through the real browser UI.
+g. **Large-upload test returned HTTP 413 for every file** when sent with curl's default content type. With `Content-Type: text/plain` (what the browser's `fetch` with a string body sends) the same files were accepted. The cause was not investigated in the library source; I treat it as unverified. Resolved later: the 45 MB STL and 40 MB CSV were loaded through the real browser UI in headless Chrome without errors (about 3.5 s each).
 
 ## 3. Verification evidence (what I ran, not what I was told)
 - `ctest`: FEA (BCs, nodal and midpoint errors, order 2.00), parsers (positive and negative), batch (serial = parallel, order, cancel), backprop (gradient check ~1e-10 vs 1e-5 tolerance), devices (errors and recovery).

@@ -36,20 +36,24 @@ jobs:
       - name: Assemble distributable folder
         shell: pwsh
         run: |
-          $d = "dist\Workbench"
+          $d = "dist\RA2311056010232_Workbench"
           New-Item -ItemType Directory -Force $d, "$d\docs" | Out-Null
           Copy-Item build\Release\Launch.exe $d
-          foreach ($x in 'web','data','results','src','tests','tools','third_party','.vscode','scripts') { if (Test-Path $x) { Copy-Item $x "$d\$x" -Recurse } }
+          foreach ($x in 'web','data','results','src','tests','tools','third_party','.vscode','scripts','.github') { if (Test-Path $x) { Copy-Item $x "$d\$x" -Recurse } }
           if (Test-Path docs) { Copy-Item docs\* "$d\docs" -Recurse -Force }
           Copy-Item CMakeLists.txt,README.md,.gitignore $d
           git log --pretty=format:"%h %ad %an  %s" --date=short > "$d\docs\commit_log.txt"
           git bundle create "$d\workbench.bundle" --all
           Copy-Item dependents.txt "$d\docs\launch_exe_dependencies.txt"
 
+      - name: Pre-submission check (required files, absolute paths, personal data, credentials)
+        shell: pwsh
+        run: python scripts/check_submission.py dist\RA2311056010232_Workbench
+
       - name: Smoke test the packaged Launch.exe (starts, serves UI and API)
         shell: pwsh
         run: |
-          $p = Start-Process "dist\Workbench\Launch.exe" -ArgumentList "--no-browser --port 8765" -PassThru
+          $p = Start-Process "dist\RA2311056010232_Workbench\Launch.exe" -ArgumentList "--no-browser --port 8765" -PassThru
           $ok = $false
           foreach ($i in 1..30) {
             try { $r = Invoke-RestMethod http://127.0.0.1:8765/api/ping; if ($r.ok) { $ok = $true; break } } catch { Start-Sleep -Milliseconds 300 }
@@ -64,12 +68,12 @@ jobs:
           Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8765/api/shutdown | Out-Null
           Start-Sleep -Seconds 2
           if (-not $p.HasExited) { throw 'Launch.exe did not exit after shutdown' }
-          'SMOKE TEST PASSED' | Tee-Object -FilePath dist\Workbench\docs\windows_smoke_test.txt
+          'SMOKE TEST PASSED' | Tee-Object -FilePath dist\RA2311056010232_Workbench\docs\windows_smoke_test.txt
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Workbench-win-x64
-          path: dist/Workbench
+          name: RA2311056010232_Workbench
+          path: dist/RA2311056010232_Workbench
 
       - name: Publish test build as a pre-release (plain download link, no login needed)
         if: github.ref == 'refs/heads/main'
@@ -77,6 +81,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          Compress-Archive -Path dist\Workbench -DestinationPath Workbench-win-x64.zip -Force
+          Compress-Archive -Path dist\RA2311056010232_Workbench -DestinationPath RA2311056010232_Workbench.zip -Force
           gh release delete latest-build --yes --cleanup-tag 2>$null
-          gh release create latest-build Workbench-win-x64.zip --prerelease --title "Latest Windows build (test)" --notes "Automatic CI build for launch testing. Not the final submission."
+          gh release create latest-build RA2311056010232_Workbench.zip --prerelease --title "Latest Windows build (test)" --notes "Automatic CI build for launch testing. Not the final submission."
