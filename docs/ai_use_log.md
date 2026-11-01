@@ -39,7 +39,7 @@ g. **Large-upload test returned HTTP 413 for every file** when sent with curl's 
 - GitHub Actions on Windows: MSVC build, tests, static-runtime check, packaged-`Launch.exe` smoke test (green).
 - Launch on a clean Windows 11 ARM VM (x64 emulation): `Launch.exe` opens the app, examples load; closing the tab made `Launch.exe` disappear from Task Manager within 25 s. Screenshots and startup timing (server ready 6 ms, UI loaded 429 ms) are in `docs/evidence/`.
 - Built and tested on my MacBook Air (Apple M4, Apple Clang 17): all 5 test suites passed. Two benchmark runs are in `results/benchmark_run1.csv` and `benchmark_run2.csv` (4-worker speedup 3.51 and 3.67; serial/parallel difference 0).
-- Handwritten backprop pages: I wrote them by hand. The assistant supplied a line-by-line worked outline when I asked what to write, so the structure and wording follow it; I then compared my numbers with `results/backprop_report.txt` (the C++ output) and the assistant's review of my photo pointed out minus signs that look like plus signs and page show-through. TODO: after I retake the photos, state here what I changed.
+- Handwritten backprop pages: I wrote them by hand. The assistant supplied a line-by-line worked outline when I asked what to write, so the structure and wording follow it; I then compared my numbers with `results/backprop_report.txt` (the C++ output) and the assistant's review of my photo pointed out minus signs that look like plus signs and page show-through. I chose to submit the pages as photographed, without retaking them.
 
 ## 4. My edits and decisions
 - Chose synthetic example data and its labelling.

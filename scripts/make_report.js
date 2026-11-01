@@ -1,6 +1,6 @@
 // Builds docs/report.docx (justified, 14 pt body). Run from the repo root: node scripts/make_report.js
 const fs = require('fs');
-const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, ImageRun, AlignmentType, WidthType,
+const { PageBreak, Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, ImageRun, AlignmentType, WidthType,
   ShadingType, BorderStyle, HeadingLevel } = require('docx');
 
 const FONT = 'Arial', BODY = 28;               // 14 pt
@@ -93,6 +93,13 @@ const doc = new Document({
       B('Hardware is simulated; the voltage table is a set of assumptions, not a verified design.'),
       B('1D, constant-property, steady-state thermal model; ASCII STL only; example data are synthetic, not ANSYS exports.'),
       B('Launch.exe is unsigned, so SmartScreen may warn. Browser rendering time for the largest files and Windows benchmark timings were not measured.'),
+
+      new Paragraph({ children: [new PageBreak()] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: 'Appendix: handwritten backpropagation (page 1 of 2)', font: FONT, size: 28, bold: true })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, children: [img('docs/handwritten/backprop_page1.jpg', 540, 912)] }),
+      new Paragraph({ children: [new PageBreak()] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: 'Appendix: handwritten backpropagation (page 2 of 2)', font: FONT, size: 28, bold: true })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, children: [img('docs/handwritten/backprop_page2.jpg', 555, 912)] }),
     ] }],
 });
 Packer.toBuffer(doc).then(b => { fs.writeFileSync('docs/report.docx', b); console.log('wrote docs/report.docx'); });
