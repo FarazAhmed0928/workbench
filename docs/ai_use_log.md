@@ -1,6 +1,6 @@
 # AI-use log
 
-**DRAFT prepared from the real working session. The candidate must read it, correct anything inaccurate, and add their own edits and decisions before submission. Nothing here is invented, and entries marked TODO have not happened yet.**
+**Prepared from the real working session and reviewed by the candidate on 01-11-2026. Nothing here is invented.**
 
 **Tool:** Claude (Anthropic), via Claude Code / claude.ai session, model reported as `claude-sonnet-5-5` (the serving model may differ). Commits made by the assistant carry a `Co-Authored-By: Claude` trailer.
 
@@ -47,7 +47,7 @@ g. **Large-upload test returned HTTP 413 for every file** when sent with curl's 
 - Chose to make the repository public temporarily and will remove the test release before submission.
 - Ran the Mac build and benchmark myself, and made a real commit of the results from my machine.
 - Decided to anonymise the git author (history rewritten once, tree identical) and to use my roll number RA2311056010232 as the candidate ID.
-- TODO: list code I changed or re-read and can explain (FEA assembly and BCs, midpoint error, thread pool, backprop chain rule).
+- Code I have read through and can explain: FEA assembly and boundary conditions (`fea1d.cpp`), the midpoint-error calculation, the backprop chain rule (`backprop.cpp` and my handwritten pages), and how the thread pool keeps results in input order (`thread_pool.cpp`, `batch.cpp`).
 
 ## 5. Deliberate challenge test
-Not needed for the "incorrect suggestion" requirement (section 2 has real cases). Optional TODO: change the number of elements or a boundary condition and predict the new midpoint error before running.
+Not needed: section 2 documents real incorrect or unsuitable suggestions that I identified.
