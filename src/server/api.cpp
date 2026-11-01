@@ -128,12 +128,16 @@ ApiServer::ApiServer(ServerConfig cfg) : impl_(new Impl) {
 ApiServer::~ApiServer() { delete impl_; }
 
 long long ApiServer::msSinceLastPing() const { return nowMs() - lastPingMs_.load(); }
+void ApiServer::markProcessStart() { startMs_ = nowMs(); }
+void ApiServer::markServerReady() { readyMs_ = nowMs() - startMs_.load(); }
 
 void ApiServer::registerRoutes(httplib::Server& svr) {
     Impl& S = *impl_;
 
     svr.Get("/api/ping", [this](const httplib::Request&, httplib::Response& res) {
         lastPingMs_ = nowMs();
+        long long expected = -1;
+        uiMs_.compare_exchange_strong(expected, nowMs() - startMs_.load());   // first heartbeat = UI loaded
         everPinged_ = true;
         ok(res, {{"ok", true}});
     });
@@ -141,8 +145,9 @@ void ApiServer::registerRoutes(httplib::Server& svr) {
         quit_ = true;
         ok(res, {{"ok", true}});
     });
-    svr.Get("/api/info", [](const httplib::Request&, httplib::Response& res) {
+    svr.Get("/api/info", [this](const httplib::Request&, httplib::Response& res) {
         ok(res, {{"name", "Unified Engineering Workbench"}, {"version", "0.1.0"}, {"system", systemToJson(querySystemInfo())},
+                 {"launch", {{"serverReadyMs", readyMs_.load()}, {"uiLoadedMs", uiMs_.load()}}},
                  {"limits", {{"maxFileMB", 50}, {"maxTriangles", 500000}, {"maxCsvRows", 1000000}}}});
     });
 

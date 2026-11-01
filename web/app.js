@@ -83,7 +83,7 @@ $('#quit').addEventListener('click', async () => {
   try { await fetch('/api/shutdown', { method: 'POST' }); } catch {}
   document.body.innerHTML = '<p style="padding:40px;font:16px system-ui">The workbench has stopped. You can close this tab.</p>';
 });
-api('/api/info').then(i => { $('#foot').textContent = `v${i.version} · local only (127.0.0.1) · ${i.system.logicalCores} logical CPUs · file limit ${i.limits.maxFileMB} MB`; }).catch(e => showError(e.message));
+api('/api/info').then(i => { $('#foot').textContent = `v${i.version} · local only (127.0.0.1) · ${i.system.logicalCores} logical CPUs · startup: server ready ${i.launch.serverReadyMs} ms, UI loaded ${i.launch.uiLoadedMs >= 0 ? i.launch.uiLoadedMs + ' ms' : '…'} (reported separately from compute timings) · file limit ${i.limits.maxFileMB} MB`; }).catch(e => showError(e.message));
 
 /* =====================================================================
    3D viewer (Three.js): rotate / pan / zoom / fit

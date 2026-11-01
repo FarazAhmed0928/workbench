@@ -75,6 +75,7 @@ int run(bool noBrowser, int fixedPort) {
     if (data.empty()) { fatal("The 'data' folder was not found next to Launch.exe. Extract the whole ZIP before running."); return 2; }
 
     wb::ApiServer api({data, web});
+    api.markProcessStart();
     httplib::Server svr;
     svr.set_payload_max_length(256u * 1024 * 1024);
     svr.set_mount_point("/", web);
@@ -83,6 +84,7 @@ int run(bool noBrowser, int fixedPort) {
     const int port = fixedPort > 0 ? (svr.bind_to_port("127.0.0.1", fixedPort) ? fixedPort : -1)
                                    : svr.bind_to_any_port("127.0.0.1");  // loopback only: no firewall prompt, not reachable from the network
     if (port < 0) { fatal("Could not open a local port. Another program may be blocking local connections."); return 3; }
+    api.markServerReady();
     const std::string url = "http://127.0.0.1:" + std::to_string(port) + "/";
     fprintf(stdout, "READY %s\n", url.c_str());
     fflush(stdout);
