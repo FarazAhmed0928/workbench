@@ -81,6 +81,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          Compress-Archive -Path dist\CandidateID_Workbench -DestinationPath CandidateID_Workbench.zip -Force
+          # Contents at the zip root: Windows 'Extract All' already creates a CandidateID_Workbench folder, so no nested folder.
+          Get-ChildItem -Force dist\CandidateID_Workbench | Compress-Archive -DestinationPath CandidateID_Workbench.zip -Force
+          python -c "import zipfile,sys; n=zipfile.ZipFile('CandidateID_Workbench.zip').namelist(); print(len(n),'entries'); assert 'Launch.exe' in n, 'Launch.exe not at zip root'; assert any(x.startswith('web/') for x in n); assert any(x.startswith('.vscode/') for x in n), '.vscode missing'; assert not any(x.startswith('CandidateID_Workbench/') for x in n); print('zip layout OK')"
           gh release delete latest-build --yes --cleanup-tag 2>$null
           gh release create latest-build CandidateID_Workbench.zip --prerelease --title "CandidateID_Workbench.zip (latest build)" --notes "Automatic CI build of the submission package."
