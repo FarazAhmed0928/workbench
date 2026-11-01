@@ -15,7 +15,7 @@ const H = t => new Paragraph({ heading: HeadingLevel.HEADING_1, alignment: Align
   children: [new TextRun({ text: t, font: FONT, size: 32, bold: true })] });
 const B = t => new Paragraph({ numbering: { reference: 'b', level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 40, line: 252 },
   children: (Array.isArray(t) ? t : [t]).map(x => typeof x === 'string' ? run(x) : x) });
-const img = (f, w, h) => new ImageRun({ type: 'png', data: fs.readFileSync(f), transformation: { width: w, height: h },
+const img = (f, w, h) => new ImageRun({ type: 'jpg', data: fs.readFileSync(f), transformation: { width: w, height: h },
   altText: { title: f, description: f, name: f } });
 const border = { style: BorderStyle.SINGLE, size: 4, color: '999999' };
 const borders = { top: border, bottom: border, left: border, right: border };
@@ -32,8 +32,8 @@ function table(widths, rows, headerRow = true) {
 const sp = () => new Paragraph({ spacing: { after: 40 }, children: [] });
 
 const sideBySide = new Table({ width: { size: W, type: WidthType.DXA }, columnWidths: [W / 2, W / 2], rows: [new TableRow({ children: [
-  ['docs/img/fea_temperature.png', 'Fig. 1a: FE vs exact, N = 10 to 80.'],
-  ['docs/img/fea_convergence.png', 'Fig. 1b: midpoint error vs h.'] ].map(([f, cap]) => new TableCell({
+  ['docs/img_small/fea_temperature.jpg', 'Fig. 1a: FE vs exact, N = 10 to 80.'],
+  ['docs/img_small/fea_convergence.jpg', 'Fig. 1b: midpoint error vs h.'] ].map(([f, cap]) => new TableCell({
     width: { size: W / 2, type: WidthType.DXA }, borders: noBorders,
     children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [img(f, 318, 192)] }),
                new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [run(cap, { italics: true })] })] })) })] });
@@ -74,12 +74,12 @@ const doc = new Document({
 
       H('4. Embedded design'),
       P('The design (docs/embedded_design.md) separates three voltage domains for the microcontroller, FPGA and JTAG adapter. The adapter drives TCK, TMS and TDI, the target drives TDO, and VTref is sensed, not supplied. A JTAG adapter is a debug interface: it runs no application and its telemetry describes the link. No shared connector, voltage or protocol is assumed. The C++ mock adapters demonstrate discovery, capabilities, connect, disconnect, telemetry and a recoverable timeout with retry; everything is labelled SIMULATED.'),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [img('docs/img/block_diagram.png', 640, 357)] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [img('docs/img_small/block_diagram.jpg', 640, 357)] }),
       new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [run('Fig. 2: block diagram (design only).', { italics: true })] }),
 
       H('5. Backpropagation'),
       P('With x=1, y=2, w=0.5, b=0, v=1, c=0 and learning rate 0.1: z=0.5, h=0.4621, y_hat=0.4621, J=1.1825. The gradients are dJ/dv=-0.7107, dJ/dc=-1.5379, dJ/dw=dJ/db=-1.2095, all negative, so every parameter increases and the prediction moves toward the target. After one simultaneous update J=0.6858. Central differences (epsilon 1e-6) agree with the analytic gradients to 1.1e-10 (limit 1e-5). Over 100 steps the loss falls monotonically to 1.7e-20 (Fig. 3); one sample can be fitted exactly, so this shows correct descent, not generalisation.'),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 20 }, children: [img('docs/img/backprop_loss.png', 440, 266)] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 20 }, children: [img('docs/img_small/backprop_loss.jpg', 440, 266)] }),
       new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [run('Fig. 3: loss over 100 gradient-descent steps (log scale).', { italics: true })] }),
 
       H('6. Test outcomes'),
