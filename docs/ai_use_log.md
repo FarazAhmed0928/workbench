@@ -37,14 +37,16 @@ g. **Large-upload test returned HTTP 413 for every file** when sent with curl's 
 - ThreadSanitizer build of the batch tests: no data races reported.
 - Headless-Chrome run of every UI view, including node inspection, malformed-file banners, form validation, benchmark and device recovery.
 - GitHub Actions on Windows: MSVC build, tests, static-runtime check, packaged-`Launch.exe` smoke test (green).
-- Launch on a clean Windows 11 ARM VM (x64 emulation): `Launch.exe` opens the app, examples load. TODO: exit-on-tab-close check and screenshots.
-- TODO: build and benchmark on my Mac (Apple Silicon); paste real output into the report.
-- TODO: my own handwritten backprop derivation, compared with the C++ values.
+- Launch on a clean Windows 11 ARM VM (x64 emulation): `Launch.exe` opens the app, examples load; closing the tab made `Launch.exe` disappear from Task Manager within 25 s. Screenshots and startup timing (server ready 6 ms, UI loaded 429 ms) are in `docs/evidence/`.
+- Built and tested on my MacBook Air (Apple M4, Apple Clang 17): all 5 test suites passed. Two benchmark runs are in `results/benchmark_run1.csv` and `benchmark_run2.csv` (4-worker speedup 3.51 and 3.67; serial/parallel difference 0).
+- Handwritten backprop pages: I wrote them by hand. The assistant supplied a line-by-line worked outline when I asked what to write, so the structure and wording follow it; I then compared my numbers with `results/backprop_report.txt` (the C++ output) and the assistant's review pointed out illegible minus signs, which I rewrote.
 
 ## 4. My edits and decisions
 - Chose synthetic example data and its labelling.
 - Chose the VM-based launch test and installed UTM and Windows 11 ARM myself.
 - Chose to make the repository public temporarily and will remove the test release before submission.
+- Ran the Mac build and benchmark myself, and made a real commit of the results from my machine.
+- Decided to anonymise the git author (history rewritten once, tree identical) and to use my roll number RA2311056010232 as the candidate ID.
 - TODO: list code I changed or re-read and can explain (FEA assembly and BCs, midpoint error, thread pool, backprop chain rule).
 
 ## 5. Deliberate challenge test
