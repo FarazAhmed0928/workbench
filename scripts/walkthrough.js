@@ -1,0 +1,41 @@
+// Scripted walkthrough: drives every view in headless Chrome, takes timestamped screenshots and writes a log.
+// Usage: node scripts/walkthrough.js <base-url> <out-dir>   (needs playwright and a Chrome/Chromium)
+const { chromium } = require('playwright');
+const fs = require('fs');
+const [url, out] = [process.argv[2], process.argv[3]];
+const lines = [];
+const log = m => { const l = `${new Date().toISOString()}  ${m}`; lines.push(l); console.log(l); };
+(async () => {
+  const br = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const pg = await br.newPage({ viewport: { width: 1280, height: 820 } });
+  pg.on('pageerror', e => log('PAGE ERROR: ' + e.message));
+  pg.on('response', r => { if (r.url().includes('/api/') && !r.url().includes('ping') && !r.url().includes('perf/status')) log(`HTTP ${r.status()} ${r.request().method()} ${new URL(r.url()).pathname}`); });
+  let n = 0;
+  const shot = async (name, full = false) => { n++; const f = `${String(n).padStart(2, '0')}_${name}.png`; await pg.screenshot({ path: `${out}/${f}`, fullPage: full }); log(`SCREENSHOT ${f}`); };
+  log('open ' + url); await pg.goto(url); await pg.waitForTimeout(600);
+  log('footer: ' + (await pg.textContent('#foot')));
+  await pg.click('#stlExample'); await pg.waitForTimeout(800); log('STL: ' + await pg.textContent('#stlInfo')); await shot('stl_example');
+  await pg.click('[data-sub=csv]'); await pg.click('#csvExample'); await pg.waitForTimeout(800); log('CSV: ' + await pg.textContent('#csvInfo'));
+  const box = await pg.locator('#csvViewer canvas[data-engine]').boundingBox();
+  await pg.mouse.click(box.x + box.width / 2, box.y + box.height / 2); await pg.waitForTimeout(300);
+  log('node inspect: ' + (await pg.locator('#inspect').textContent()).replace(/\s+/g, ' ')); await shot('csv_legend_and_node_inspection');
+  await pg.setInputFiles('#csvFile', { name: 'bad.csv', mimeType: 'text/csv', buffer: Buffer.from('node_id,x_m,y_m,z_m,temperature_C\n1,0,0,0,nan\n') });
+  await pg.waitForTimeout(400); log('malformed CSV banner: ' + await pg.textContent('#banner')); await shot('malformed_csv_rejected');
+  await pg.click('[data-view=thermal]'); await pg.click('#feaForm button[type=submit]'); await pg.waitForTimeout(500);
+  log('FEA N=10: ' + (await pg.textContent('#feaStats')).replace(/\s+/g, ' '));
+  await pg.click('#feaConv'); await pg.waitForTimeout(900); await shot('thermal_convergence', true);
+  await pg.fill('#feaForm [name=k]', '-3'); await pg.click('#feaForm button[type=submit]'); await pg.waitForTimeout(200);
+  log('validation message: ' + await pg.textContent('#feaForm .errmsg')); await shot('thermal_validation_error'); await pg.fill('#feaForm [name=k]', '10');
+  await pg.click('[data-view=performance]'); await pg.fill('#perfForm [name=cases]', '3000'); await pg.click('#perfStart'); await pg.waitForTimeout(500); await shot('performance_running');
+  await pg.waitForFunction(() => document.querySelector('#perfLabel').textContent === 'Done.', null, { timeout: 120000 });
+  log('benchmark: ' + (await pg.textContent('#perfVerdict')).replace(/\s+/g, ' ')); await shot('performance_result', true);
+  await pg.click('[data-view=hardware]'); await pg.waitForTimeout(400);
+  await pg.click('#dev-fpga0 [data-a=inject-timeout]'); await pg.waitForTimeout(200); await pg.click('#dev-fpga0 [data-a=connect]'); await pg.waitForTimeout(200);
+  await pg.click('#dev-fpga0 [data-a=connect-retry]'); await pg.waitForTimeout(200); await pg.click('#dev-fpga0 [data-a=telemetry]'); await pg.waitForTimeout(200);
+  await pg.click('#dev-mcu0 [data-a=connect]'); await pg.waitForTimeout(150); await pg.click('#dev-mcu0 [data-a=telemetry]'); await pg.waitForTimeout(150);
+  await pg.click('#dev-jtag0 [data-a=connect]'); await pg.waitForTimeout(150); await pg.click('#dev-jtag0 [data-a=telemetry]'); await pg.waitForTimeout(300);
+  log('device log:\n' + await pg.textContent('#devLog')); await shot('hardware_simulated_recovery', true);
+  await pg.click('[data-view=learning]'); await pg.waitForTimeout(700); log('backprop check: ' + (await pg.textContent('#bpCheck')).replace(/\s+/g, ' ')); await shot('backprop', true);
+  await br.close();
+  fs.writeFileSync(`${out}/walkthrough_log.txt`, lines.join('\n') + '\n');
+})().catch(e => { console.error('FAILED', e); process.exit(1); });

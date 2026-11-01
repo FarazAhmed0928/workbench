@@ -1,0 +1,55 @@
+2026-11-01T12:11:32.187Z  open http://127.0.0.1:8772/
+2026-11-01T12:11:32.863Z  HTTP 200 GET /api/info
+2026-11-01T12:11:33.453Z  footer: v0.1.0 · local only (127.0.0.1) · 2 logical CPUs · startup: server ready 1 ms, UI loaded 1945 ms (reported separately from compute timings) · file limit 50 MB
+2026-11-01T12:11:33.487Z  HTTP 200 GET /api/examples/stl
+2026-11-01T12:11:34.286Z  STL: 96 triangles · size 1 × 0.0113 × 0.0113 model units · example_rod.stl (synthetic, self-created)
+2026-11-01T12:11:34.347Z  SCREENSHOT 01_stl_example.png
+2026-11-01T12:11:34.469Z  HTTP 200 GET /api/examples/csv
+2026-11-01T12:11:35.266Z  CSV: 273 nodes · T 20 to 188.5 °C · x 0…1 m · example_nodal_temperature_SYNTHETIC.csv (SYNTHETIC, not an ANSYS export)
+2026-11-01T12:11:35.627Z  node inspect: Node 131x = 0.5 my = 0 mz = 0 mT = 185.5 °C
+2026-11-01T12:11:35.688Z  SCREENSHOT 02_csv_legend_and_node_inspection.png
+2026-11-01T12:11:35.705Z  HTTP 400 POST /api/results/csv
+2026-11-01T12:11:36.103Z  malformed CSV banner: bad.csv: Line 2: value 'nan' in column temperature_C is not a finite number.
+2026-11-01T12:11:36.170Z  SCREENSHOT 03_malformed_csv_rejected.png
+2026-11-01T12:11:36.269Z  HTTP 200 POST /api/fea/solve
+2026-11-01T12:11:36.768Z  FEA N=10: Element size h = 0.1 mMax nodal error = 2.84e-14 °CMax midpoint error (FE interpolation) = 1.25 °C
+2026-11-01T12:11:36.802Z  HTTP 200 POST /api/fea/convergence
+2026-11-01T12:11:37.791Z  SCREENSHOT 04_thermal_convergence.png
+2026-11-01T12:11:38.096Z  validation message: Conductivity k must be greater than 0.
+2026-11-01T12:11:38.186Z  SCREENSHOT 05_thermal_validation_error.png
+2026-11-01T12:11:38.355Z  HTTP 200 POST /api/perf/start
+2026-11-01T12:11:38.952Z  SCREENSHOT 06_performance_running.png
+2026-11-01T12:11:39.591Z  benchmark: Serial/parallel agreement (≤ 1e-8 °C): PASS
+2026-11-01T12:11:39.687Z  SCREENSHOT 07_performance_result.png
+2026-11-01T12:11:39.736Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:40.170Z  HTTP 200 POST /api/devices/fpga0/inject-timeout
+2026-11-01T12:11:40.177Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:40.387Z  HTTP 200 POST /api/devices/fpga0/connect
+2026-11-01T12:11:40.393Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:40.619Z  HTTP 200 POST /api/devices/fpga0/connect-retry
+2026-11-01T12:11:40.623Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:40.836Z  HTTP 200 POST /api/devices/fpga0/telemetry
+2026-11-01T12:11:40.848Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:41.069Z  HTTP 200 POST /api/devices/mcu0/connect
+2026-11-01T12:11:41.077Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:41.236Z  HTTP 200 POST /api/devices/mcu0/telemetry
+2026-11-01T12:11:41.246Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:41.421Z  HTTP 200 POST /api/devices/jtag0/connect
+2026-11-01T12:11:41.426Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:41.587Z  HTTP 200 POST /api/devices/jtag0/telemetry
+2026-11-01T12:11:41.593Z  HTTP 200 GET /api/devices
+2026-11-01T12:11:41.878Z  device log:
+5:41:39 PM  [SIMULATED] Discovery found 3 devices.
+5:41:40 PM  [SIMULATED] fpga0 inject-timeout: OK - Injected one simulated timeout for the next call to fpga0.
+5:41:40 PM  [SIMULATED] fpga0 connect: FAILED (timeout) - Timed out waiting for Simulated FPGA board (3.3 V I/O, 1.2 V core) (simulated). Retry, or check the cable and power.
+5:41:40 PM  [SIMULATED] fpga0 connect-retry: OK
+5:41:40 PM  [SIMULATED] fpga0 telemetry: OK
+5:41:41 PM  [SIMULATED] mcu0 connect: OK
+5:41:41 PM  [SIMULATED] mcu0 telemetry: OK
+5:41:41 PM  [SIMULATED] jtag0 connect: OK
+5:41:41 PM  [SIMULATED] jtag0 telemetry: OK
+
+2026-11-01T12:11:41.982Z  SCREENSHOT 08_hardware_simulated_recovery.png
+2026-11-01T12:11:42.036Z  HTTP 200 GET /api/backprop
+2026-11-01T12:11:42.731Z  backprop check: Central-difference check (ε = 1e-6): max error 1.12e-10 → PASS (≤ 1e-5)
+2026-11-01T12:11:42.880Z  SCREENSHOT 09_backprop.png
